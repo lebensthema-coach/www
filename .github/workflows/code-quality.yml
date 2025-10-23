@@ -1,0 +1,105 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g htmlhint
+          npm install -g csslint
+          npm install -g jshint
+          npm install -g markdownlint-cli
+
+      - name: HTML Validation
+        run: |
+          echo "## 🔍 HTML Validation" >> $GITHUB_STEP_SUMMARY
+          if find . -name "*.html" -type f | grep -q .; then
+            for file in $(find . -name "*.html" -type f); do
+              echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
+              htmlhint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
+            done
+          else
+            echo "No HTML files found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: CSS Validation
+        run: |
+          echo "## 🎨 CSS Validation" >> $GITHUB_STEP_SUMMARY
+          if find . -name "*.css" -type f | grep -q .; then
+            for file in $(find . -name "*.css" -type f); do
+              echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
+              csslint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
+            done
+          else
+            echo "No CSS files found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: JavaScript Validation
+        run: |
+          echo "## 📜 JavaScript Validation" >> $GITHUB_STEP_SUMMARY
+          if find . -name "*.js" -type f | grep -q .; then
+            for file in $(find . -name "*.js" -type f); do
+              echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
+              jshint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
+            done
+          else
+            echo "No JavaScript files found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Markdown Validation
+        run: |
+          echo "## 📝 Markdown Validation" >> $GITHUB_STEP_SUMMARY
+          if find . -name "*.md" -type f | grep -q .; then
+            for file in $(find . -name "*.md" -type f); do
+              echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
+              markdownlint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
+            done
+          else
+            echo "No Markdown files found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Security Scan
+        run: |
+          echo "## 🔒 Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "Checking for potential security issues..." >> $GITHUB_STEP_SUMMARY
+          
+          # Check for hardcoded secrets
+          if grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+            echo "⚠️ **Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
+            grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No obvious secrets detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: File Size Check
+        run: |
+          echo "## 📊 File Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "Checking file sizes..." >> $GITHUB_STEP_SUMMARY
+          
+          find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" -o -name "*.md" \) -exec ls -lh {} \; | \
+          awk '{print "- " $9 ": " $5}' | sort >> $GITHUB_STEP_SUMMARY
+          
+          # Check for large files
+          large_files=$(find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -size +100k)
+          if [ -n "$large_files" ]; then
+            echo "⚠️ **Warning**: Large files detected (>100KB)" >> $GITHUB_STEP_SUMMARY
+            echo "$large_files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No large files detected" >> $GITHUB_STEP_SUMMARY
+          fi
