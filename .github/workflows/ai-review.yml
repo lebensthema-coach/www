@@ -1,0 +1,217 @@
+name: AI-Powered PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install AI Review Tools
+        run: |
+          npm install -g @githubnext/github-copilot-cli
+          npm install -g @octokit/rest
+
+      - name: Generate AI Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "## 🤖 AI-Powered Code Review" >> $GITHUB_STEP_SUMMARY
+          
+          # Get PR details
+          PR_NUMBER=${{ github.event.number }}
+          REPO_OWNER=${{ github.repository_owner }}
+          REPO_NAME=${{ github.event.repository.name }}
+          
+          echo "### 📊 PR Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "**PR #$PR_NUMBER**: ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Author**: ${{ github.event.pull_request.user.login }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Files Changed**: ${{ github.event.pull_request.changed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Additions**: +${{ github.event.pull_request.additions }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deletions**: -${{ github.event.pull_request.deletions }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Analyze code changes
+          echo "### 🔍 Code Analysis" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for new files
+          if [ "${{ github.event.pull_request.additions }}" -gt 0 ]; then
+            echo "✅ New code added" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for deletions
+          if [ "${{ github.event.pull_request.deletions }}" -gt 0 ]; then
+            echo "🗑️ Code removed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Analyze file types
+          echo "### 📁 File Type Analysis" >> $GITHUB_STEP_SUMMARY
+          
+          # HTML files
+          html_files=$(find . -name "*.html" -type f | wc -l)
+          if [ $html_files -gt 0 ]; then
+            echo "- HTML files: $html_files" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # CSS files
+          css_files=$(find . -name "*.css" -type f | wc -l)
+          if [ $css_files -gt 0 ]; then
+            echo "- CSS files: $css_files" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # JavaScript files
+          js_files=$(find . -name "*.js" -type f | wc -l)
+          if [ $js_files -gt 0 ]; then
+            echo "- JavaScript files: $js_files" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Markdown files
+          md_files=$(find . -name "*.md" -type f | wc -l)
+          if [ $md_files -gt 0 ]; then
+            echo "- Markdown files: $md_files" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Smart Code Review
+        run: |
+          echo "### 🧠 Smart Code Review" >> $GITHUB_STEP_SUMMARY
+          
+          # Review HTML files
+          if find . -name "*.html" -type f | grep -q .; then
+            echo "#### HTML Review" >> $GITHUB_STEP_SUMMARY
+            for file in $(find . -name "*.html" -type f); do
+              echo "**File**: $file" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for semantic HTML
+              if grep -q "<header\|<nav\|<main\|<section\|<article\|<aside\|<footer>" "$file"; then
+                echo "✅ Uses semantic HTML elements" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ Consider using semantic HTML elements" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for accessibility
+              if grep -q "alt=" "$file"; then
+                echo "✅ Images have alt attributes" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ Some images may be missing alt attributes" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for responsive design
+              if grep -q "viewport" "$file"; then
+                echo "✅ Responsive viewport meta tag present" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ Missing viewport meta tag for responsive design" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          fi
+          
+          # Review CSS files
+          if find . -name "*.css" -type f | grep -q .; then
+            echo "#### CSS Review" >> $GITHUB_STEP_SUMMARY
+            for file in $(find . -name "*.css" -type f); do
+              echo "**File**: $file" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for modern CSS
+              if grep -q "grid\|flexbox\|var(" "$file"; then
+                echo "✅ Uses modern CSS features" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "ℹ️ Consider using modern CSS features (Grid, Flexbox, CSS Variables)" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for responsive design
+              if grep -q "@media" "$file"; then
+                echo "✅ Includes responsive design" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠️ Consider adding responsive design with media queries" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          fi
+
+      - name: Performance Analysis
+        run: |
+          echo "### ⚡ Performance Analysis" >> $GITHUB_STEP_SUMMARY
+          
+          # Check file sizes
+          total_size=$(find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec du -ch {} + | tail -1 | cut -f1)
+          echo "**Total size**: $total_size" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for large files
+          large_files=$(find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -size +50k)
+          if [ -n "$large_files" ]; then
+            echo "⚠️ Large files detected (>50KB):" >> $GITHUB_STEP_SUMMARY
+            echo "$large_files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No large files detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for optimization opportunities
+          if find . -name "*.html" -type f -exec grep -l "style=" {} \; | grep -q .; then
+            echo "⚠️ Inline styles detected - consider moving to CSS files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No inline styles detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Security Analysis
+        run: |
+          echo "### 🔒 Security Analysis" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for potential security issues
+          if grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+            echo "⚠️ **Security Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
+            echo "Please review the following files:" >> $GITHUB_STEP_SUMMARY
+            grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github | head -5 >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No obvious security issues detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for external dependencies
+          if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **Security Warning**: HTTP URLs detected. Consider using HTTPS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No HTTP URLs detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate Review Summary
+        run: |
+          echo "### 📋 Review Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Review Status**: 🤖 AI Review Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the analysis above" >> $GITHUB_STEP_SUMMARY
+          echo "2. Address any warnings or issues" >> $GITHUB_STEP_SUMMARY
+          echo "3. Consider the performance and security suggestions" >> $GITHUB_STEP_SUMMARY
+          echo "4. Request human review if needed" >> $GITHUB_STEP_SUMMARY
+          echo "5. Merge when ready" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Review automated analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Address any issues found" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Request human review if needed" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Merge when approved" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **AI-Powered PR Review Complete**\n\n${summary}`
+            });

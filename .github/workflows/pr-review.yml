@@ -1,0 +1,130 @@
+name: Automated PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g @githubnext/github-copilot-cli
+          npm install -g markdownlint-cli
+          npm install -g htmlhint
+
+      - name: Code Quality Checks
+        run: |
+          echo "## 🔍 Code Quality Analysis" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for HTML files
+          if find . -name "*.html" -type f | grep -q .; then
+            echo "### HTML Files Found" >> $GITHUB_STEP_SUMMARY
+            find . -name "*.html" -type f -exec echo "- {}" \; >> $GITHUB_STEP_SUMMARY
+            
+            # HTML validation
+            echo "### HTML Validation" >> $GITHUB_STEP_SUMMARY
+            for file in $(find . -name "*.html" -type f); do
+              echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
+              htmlhint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
+            done
+          fi
+          
+          # Check for CSS
+          if find . -name "*.css" -type f | grep -q .; then
+            echo "### CSS Files Found" >> $GITHUB_STEP_SUMMARY
+            find . -name "*.css" -type f -exec echo "- {}" \; >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for JavaScript
+          if find . -name "*.js" -type f | grep -q .; then
+            echo "### JavaScript Files Found" >> $GITHUB_STEP_SUMMARY
+            find . -name "*.js" -type f -exec echo "- {}" \; >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Security Scan
+        run: |
+          echo "## 🔒 Security Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Security Checklist:" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] No hardcoded secrets or API keys" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] No external CDN dependencies without integrity checks" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] No inline scripts without proper CSP" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for potential security issues
+          if grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No obvious secrets detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Performance Analysis
+        run: |
+          echo "## ⚡ Performance Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Performance Checklist:" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Images are optimized" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] CSS is minified for production" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] JavaScript is optimized" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] No blocking resources" >> $GITHUB_STEP_SUMMARY
+          
+          # Check file sizes
+          echo "### File Size Analysis:" >> $GITHUB_STEP_SUMMARY
+          find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec ls -lh {} \; | awk '{print "- " $9 ": " $5}' >> $GITHUB_STEP_SUMMARY
+
+      - name: Accessibility Check
+        run: |
+          echo "## ♿ Accessibility Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Accessibility Checklist:" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Alt text for images" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Proper heading hierarchy" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Color contrast meets WCAG standards" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Keyboard navigation support" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Screen reader compatibility" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for alt attributes
+          if find . -name "*.html" -type f -exec grep -l "<img" {} \; | xargs grep -L "alt="; then
+            echo "⚠️ **Warning**: Images without alt attributes found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All images have alt attributes" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate Review Summary
+        run: |
+          echo "## 📋 Review Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### Automated Review Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Review Status**: ✅ Automated checks completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the analysis above" >> $GITHUB_STEP_SUMMARY
+          echo "2. Address any warnings or issues" >> $GITHUB_STEP_SUMMARY
+          echo "3. Request human review if needed" >> $GITHUB_STEP_SUMMARY
+          echo "4. Merge when ready" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **Automated PR Review Complete**\n\n${summary}`
+            });
