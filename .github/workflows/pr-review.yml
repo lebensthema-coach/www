@@ -31,6 +31,7 @@ jobs:
       - name: Code Quality Checks
         run: |
           echo "## 🔍 Code Quality Analysis" >> $GITHUB_STEP_SUMMARY
+          ISSUES_FOUND=0
           
           # Check for HTML files
           if find . -name "*.html" -type f | grep -q .; then
@@ -52,27 +53,40 @@ jobs:
               # Check for missing closing tags
               if ! grep -q "</head>" "$file"; then
                 echo "❌ **CRITICAL**: Missing closing </head> tag" >> $GITHUB_STEP_SUMMARY
+                ISSUES_FOUND=$((ISSUES_FOUND + 1))
               fi
               
               if ! grep -q "</body>" "$file"; then
                 echo "❌ **CRITICAL**: Missing closing </body> tag" >> $GITHUB_STEP_SUMMARY
+                ISSUES_FOUND=$((ISSUES_FOUND + 1))
               fi
               
               # Check for images without alt text
               if grep -q "<img" "$file" && ! grep -q "alt=" "$file"; then
                 echo "❌ **ACCESSIBILITY**: Images without alt attributes" >> $GITHUB_STEP_SUMMARY
+                ISSUES_FOUND=$((ISSUES_FOUND + 1))
               fi
               
               # Check for inline styles
               if grep -q 'style=' "$file"; then
                 echo "⚠️ **PERFORMANCE**: Inline styles detected - consider moving to CSS" >> $GITHUB_STEP_SUMMARY
+                ISSUES_FOUND=$((ISSUES_FOUND + 1))
               fi
               
               # Check for external scripts without integrity
               if grep -q 'src="http' "$file"; then
                 echo "❌ **SECURITY**: External scripts without integrity checks" >> $GITHUB_STEP_SUMMARY
+                ISSUES_FOUND=$((ISSUES_FOUND + 1))
               fi
             done
+          fi
+          
+          # Fail if critical issues found
+          if [ $ISSUES_FOUND -gt 0 ]; then
+            echo "❌ **FAILED**: $ISSUES_FOUND critical issues found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ **PASSED**: No critical issues found" >> $GITHUB_STEP_SUMMARY
           fi
           
           # Check for CSS
@@ -95,39 +109,52 @@ jobs:
           echo "- [ ] No external CDN dependencies without integrity checks" >> $GITHUB_STEP_SUMMARY
           echo "- [ ] No inline scripts without proper CSP" >> $GITHUB_STEP_SUMMARY
           
-          # Check for potential security issues
+          SECURITY_ISSUES=0
           echo "### Security Issues Found:" >> $GITHUB_STEP_SUMMARY
           
           # Check for hardcoded API keys
           if grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules; then
             echo "❌ **CRITICAL SECURITY**: Hardcoded API keys found!" >> $GITHUB_STEP_SUMMARY
             grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           fi
           
           # Check for HTTP URLs
           if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules; then
             echo "❌ **SECURITY**: HTTP URLs detected - use HTTPS" >> $GITHUB_STEP_SUMMARY
             grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           fi
           
           # Check for inline scripts
           if grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules; then
             echo "⚠️ **SECURITY**: Inline scripts detected - consider CSP" >> $GITHUB_STEP_SUMMARY
             grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           fi
           
           # Check for external scripts without integrity
           if grep -r 'src="http' . --exclude-dir=.git --exclude-dir=node_modules; then
             echo "❌ **SECURITY**: External scripts without integrity checks" >> $GITHUB_STEP_SUMMARY
             grep -r 'src="http' . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           fi
           
           # Check for other secrets
           if grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md"; then
             echo "⚠️ **Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
             grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           else
             echo "✅ No obvious secrets detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Fail if security issues found
+          if [ $SECURITY_ISSUES -gt 0 ]; then
+            echo "❌ **FAILED**: $SECURITY_ISSUES security issues found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ **PASSED**: No security issues found" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Performance Analysis

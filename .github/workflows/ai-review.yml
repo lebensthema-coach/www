@@ -168,11 +168,14 @@ jobs:
         run: |
           echo "### 🔒 Security Analysis" >> $GITHUB_STEP_SUMMARY
           
+          SECURITY_ISSUES=0
+          
           # Check for potential security issues
           if grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
             echo "⚠️ **Security Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
             echo "Please review the following files:" >> $GITHUB_STEP_SUMMARY
             grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github | head -5 >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           else
             echo "✅ No obvious security issues detected" >> $GITHUB_STEP_SUMMARY
           fi
@@ -180,8 +183,17 @@ jobs:
           # Check for external dependencies
           if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules; then
             echo "⚠️ **Security Warning**: HTTP URLs detected. Consider using HTTPS" >> $GITHUB_STEP_SUMMARY
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
           else
             echo "✅ No HTTP URLs detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Fail if security issues found
+          if [ $SECURITY_ISSUES -gt 0 ]; then
+            echo "❌ **FAILED**: $SECURITY_ISSUES security issues found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ **PASSED**: No security issues found" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Generate Review Summary
