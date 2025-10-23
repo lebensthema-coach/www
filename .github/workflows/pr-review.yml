@@ -43,6 +43,36 @@ jobs:
               echo "Checking $file..." >> $GITHUB_STEP_SUMMARY
               htmlhint "$file" >> $GITHUB_STEP_SUMMARY 2>&1 || true
             done
+            
+            # Check for specific HTML issues
+            echo "### HTML Structure Issues" >> $GITHUB_STEP_SUMMARY
+            for file in $(find . -name "*.html" -type f); do
+              echo "**File**: $file" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for missing closing tags
+              if ! grep -q "</head>" "$file"; then
+                echo "❌ **CRITICAL**: Missing closing </head> tag" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              if ! grep -q "</body>" "$file"; then
+                echo "❌ **CRITICAL**: Missing closing </body> tag" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for images without alt text
+              if grep -q "<img" "$file" && ! grep -q "alt=" "$file"; then
+                echo "❌ **ACCESSIBILITY**: Images without alt attributes" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for inline styles
+              if grep -q 'style=' "$file"; then
+                echo "⚠️ **PERFORMANCE**: Inline styles detected - consider moving to CSS" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Check for external scripts without integrity
+              if grep -q 'src="http' "$file"; then
+                echo "❌ **SECURITY**: External scripts without integrity checks" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
           fi
           
           # Check for CSS
@@ -66,8 +96,36 @@ jobs:
           echo "- [ ] No inline scripts without proper CSP" >> $GITHUB_STEP_SUMMARY
           
           # Check for potential security issues
-          if grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules; then
+          echo "### Security Issues Found:" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for hardcoded API keys
+          if grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "❌ **CRITICAL SECURITY**: Hardcoded API keys found!" >> $GITHUB_STEP_SUMMARY
+            grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for HTTP URLs
+          if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "❌ **SECURITY**: HTTP URLs detected - use HTTPS" >> $GITHUB_STEP_SUMMARY
+            grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for inline scripts
+          if grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **SECURITY**: Inline scripts detected - consider CSP" >> $GITHUB_STEP_SUMMARY
+            grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for external scripts without integrity
+          if grep -r 'src="http' . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "❌ **SECURITY**: External scripts without integrity checks" >> $GITHUB_STEP_SUMMARY
+            grep -r 'src="http' . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for other secrets
+          if grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md"; then
             echo "⚠️ **Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
+            grep -r "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ No obvious secrets detected" >> $GITHUB_STEP_SUMMARY
           fi
@@ -84,6 +142,27 @@ jobs:
           # Check file sizes
           echo "### File Size Analysis:" >> $GITHUB_STEP_SUMMARY
           find . -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec ls -lh {} \; | awk '{print "- " $9 ": " $5}' >> $GITHUB_STEP_SUMMARY
+          
+          # Check for performance issues
+          echo "### Performance Issues Found:" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for large base64 images
+          if grep -r "data:image" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "❌ **PERFORMANCE**: Large base64 images detected" >> $GITHUB_STEP_SUMMARY
+            grep -r "data:image" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for inline styles
+          if grep -r 'style=' . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **PERFORMANCE**: Inline styles detected - consider CSS files" >> $GITHUB_STEP_SUMMARY
+            grep -r 'style=' . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for external resources
+          if grep -r 'href="http' . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **PERFORMANCE**: External resources without integrity" >> $GITHUB_STEP_SUMMARY
+            grep -r 'href="http' . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Accessibility Check
         run: |
@@ -95,11 +174,27 @@ jobs:
           echo "- [ ] Keyboard navigation support" >> $GITHUB_STEP_SUMMARY
           echo "- [ ] Screen reader compatibility" >> $GITHUB_STEP_SUMMARY
           
-          # Check for alt attributes
+          # Check for accessibility issues
+          echo "### Accessibility Issues Found:" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for images without alt text
           if find . -name "*.html" -type f -exec grep -l "<img" {} \; | xargs grep -L "alt="; then
-            echo "⚠️ **Warning**: Images without alt attributes found" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **ACCESSIBILITY**: Images without alt attributes found" >> $GITHUB_STEP_SUMMARY
+            find . -name "*.html" -type f -exec grep -l "<img" {} \; | xargs grep -L "alt=" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ All images have alt attributes" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for poor color contrast
+          if grep -r "color: #999" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "❌ **ACCESSIBILITY**: Poor color contrast detected (#999)" >> $GITHUB_STEP_SUMMARY
+            grep -r "color: #999" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for heading hierarchy issues
+          if grep -r "<h3>" . --exclude-dir=.git --exclude-dir=node_modules && grep -r "<h2>" . --exclude-dir=.git --exclude-dir=node_modules; then
+            echo "⚠️ **ACCESSIBILITY**: Heading hierarchy issue - H3 before H2" >> $GITHUB_STEP_SUMMARY
+            grep -r "<h[2-3]>" . --exclude-dir=.git --exclude-dir=node_modules >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Generate Review Summary

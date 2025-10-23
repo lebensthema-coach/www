@@ -79,10 +79,28 @@ jobs:
           echo "## 🔒 Security Scan" >> $GITHUB_STEP_SUMMARY
           echo "Checking for potential security issues..." >> $GITHUB_STEP_SUMMARY
           
-          # Check for hardcoded secrets
-          if grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+          # Check for hardcoded API keys
+          if grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+            echo "❌ **CRITICAL**: Hardcoded API keys found!" >> $GITHUB_STEP_SUMMARY
+            grep -r "sk-[a-zA-Z0-9]" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for HTTP URLs
+          if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+            echo "❌ **SECURITY**: HTTP URLs detected - use HTTPS" >> $GITHUB_STEP_SUMMARY
+            grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for inline scripts
+          if grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github; then
+            echo "⚠️ **SECURITY**: Inline scripts detected" >> $GITHUB_STEP_SUMMARY
+            grep -r "<script>" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for other secrets
+          if grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github --exclude="*.md"; then
             echo "⚠️ **Warning**: Potential secrets found in code" >> $GITHUB_STEP_SUMMARY
-            grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github >> $GITHUB_STEP_SUMMARY
+            grep -r -i "password\|secret\|key\|token\|api_key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github --exclude="*.md" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ No obvious secrets detected" >> $GITHUB_STEP_SUMMARY
           fi
