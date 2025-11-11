@@ -48,6 +48,14 @@ export default function Navigation() {
           >
             Podcast
           </a>
+          <a 
+            href="https://medium.com/@lebensthema.coach" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
+          >
+            Blog
+          </a>
         </div>
       </WhiteContainer>
     </nav>
