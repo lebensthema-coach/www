@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function Signatur() {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 pt-4 pb-2">
+    <section className="w-full max-w-7xl mx-auto px-4">
       <WhiteContainer>
         <div className="flex flex-col md:flex-row items-center md:items-center gap-8 md:gap-16 lg:gap-20 xl:gap-24 p-6 md:p-8 lg:p-10">
           {/* Linker Bereich - Porträtbild (kreisförmig) */}

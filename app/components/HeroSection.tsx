@@ -3,7 +3,7 @@ import Button from './Button';
 
 export default function HeroSection() {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 pt-4 pb-2">
+    <section className="w-full max-w-7xl mx-auto px-4">
       <WhiteContainer>
         <div className="px-6 md:px-10 py-8 md:py-12 text-center">
           {/* H1 - Orange Quote */}
