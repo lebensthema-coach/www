@@ -29,7 +29,7 @@ export default function HeroSection() {
               Vielleicht passt Du Dich an, funktionierst, übernimmst Verantwortung für alle – und verlierst Dich selbst dabei. Trotz aller Anstrengung nagt an Dir das Gefühl: „Es ist nie genug."
             </p>
             <p className="text-brand-dark-gray text-base md:text-lg lg:text-xl leading-relaxed text-center">
-              Gemeinsam decken wir solche tieferliegenden Muster auf, die Dich immer wieder in die selben Schmerzen treiben.
+              Gemeinsam decken wir solche tiefliegenden Muster auf, die Dich immer wieder in die selben Schmerzen treiben.
             </p>
             <p className="text-brand-dark-gray text-base md:text-lg lg:text-xl leading-relaxed text-center font-medium">
               Du verstehst, das Warum dahinter – und beginnst, Dich daraus zu lösen.
