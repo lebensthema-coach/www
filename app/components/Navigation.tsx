@@ -23,6 +23,14 @@ export default function Navigation() {
             Home
           </a>
           <a 
+            href="https://calendly.com/lebensthema/coach" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
+          >
+            Coaching
+          </a>
+          <a 
             href="/newsletter" 
             className={`font-bold text-base transition-opacity ${
               isNewsletter 
@@ -33,28 +41,12 @@ export default function Navigation() {
             Newsletter
           </a>
           <a 
-            href="https://calendly.com/lebensthema/coach" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
-          >
-            Coaching
-          </a>
-          <a 
             href="https://creators.spotify.com/pod/profile/sergej-tissen2/" 
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
           >
             Podcast
-          </a>
-          <a 
-            href="https://medium.com/@lebensthema.coach" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
-          >
-            Blog
           </a>
         </div>
       </WhiteContainer>
