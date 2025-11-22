@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Great_Vibes } from "next/font/google";
+import { Great_Vibes, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const greatVibes = Great_Vibes({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-great-vibes",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-playfair-display",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`antialiased ${greatVibes.variable}`}>
+      <body className={`antialiased ${greatVibes.variable} ${playfairDisplay.variable}`}>
         {children}
       </body>
     </html>

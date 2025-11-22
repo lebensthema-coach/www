@@ -7,13 +7,13 @@ export default function Footer() {
         <div className="flex justify-end items-center gap-6 px-6 py-4">
           <a 
             href="/datenschutz" 
-            className="text-gray-500 text-base font-normal hover:text-brand-cyan transition-colors"
+            className="text-gray-500 text-base font-normal hover:text-brand-primary transition-colors"
           >
             Datenschutz
           </a>
           <a 
             href="/impressum" 
-            className="text-gray-500 text-base font-normal hover:text-brand-cyan transition-colors"
+            className="text-gray-500 text-base font-normal hover:text-brand-primary transition-colors"
           >
             Impressum
           </a>

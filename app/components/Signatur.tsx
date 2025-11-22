@@ -21,7 +21,7 @@ export default function Signatur() {
           {/* Rechter Bereich - Text, Icons und Signatur */}
           <div className="flex flex-col items-center md:items-start flex-1">
             {/* Titel */}
-            <h3 className="text-brand-orange text-2xl md:text-3xl font-bold mb-4 md:mb-5 text-center md:text-left">
+            <h3 className="text-brand-primary text-2xl md:text-3xl font-bold mb-4 md:mb-5 text-center md:text-left">
               Der Lebensthema Coach
             </h3>
             
@@ -32,7 +32,7 @@ export default function Signatur() {
                 href="https://www.instagram.com/lebensthema.coach"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-dark-gray hover:text-brand-cyan transition-colors"
+                className="text-brand-dark-gray hover:text-brand-primary transition-colors"
                 aria-label="Instagram"
               >
                 <svg
@@ -50,7 +50,7 @@ export default function Signatur() {
                 href="https://creators.spotify.com/pod/profile/sergej-tissen2/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-dark-gray hover:text-brand-cyan transition-colors"
+                className="text-brand-dark-gray hover:text-brand-primary transition-colors"
                 aria-label="Spotify Podcast"
               >
                 <svg
@@ -68,7 +68,7 @@ export default function Signatur() {
                 href="https://medium.com/@lebensthema.coach"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-dark-gray hover:text-brand-cyan transition-colors"
+                className="text-brand-dark-gray hover:text-brand-primary transition-colors"
                 aria-label="Medium Blog"
               >
                 <svg
@@ -84,7 +84,7 @@ export default function Signatur() {
               {/* E-Mail */}
               <a
                 href="mailto:sergej@lebensthema.coach"
-                className="text-brand-dark-gray hover:text-brand-cyan transition-colors"
+                className="text-brand-dark-gray hover:text-brand-primary transition-colors"
                 aria-label="E-Mail"
               >
                 <svg

@@ -6,9 +6,9 @@ export default function HeroSection() {
     <section className="w-full max-w-7xl mx-auto px-4">
       <WhiteContainer>
         <div className="px-6 md:px-10 py-8 md:py-12 text-center">
-          {/* H1 - Orange Quote */}
+          {/* H1 - Primary Quote */}
           <div className="mb-6 md:mb-8">
-            <h1 className="text-brand-orange text-2xl md:text-4xl lg:text-5xl font-bold leading-tight text-center">
+            <h1 className="text-brand-primary text-2xl md:text-4xl lg:text-5xl font-bold leading-tight text-center">
               <span className="inline-block">"Warum gerate ich immer wieder in dieselben Situationen?"</span>
             </h1>
           </div>

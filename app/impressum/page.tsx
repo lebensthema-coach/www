@@ -10,7 +10,7 @@ export default function Impressum() {
         <section className="w-full max-w-7xl mx-auto px-4 pt-4 pb-2">
           <WhiteContainer>
             <div className="px-6 md:px-10 py-8 md:py-12">
-              <h1 className="text-brand-orange text-3xl md:text-4xl font-bold mb-8 md:mb-10">
+              <h1 className="text-brand-primary text-3xl md:text-4xl font-bold mb-8 md:mb-10">
                 Impressum
               </h1>
               
@@ -34,7 +34,7 @@ export default function Impressum() {
                 <section>
                   <h2 className="text-xl md:text-2xl font-bold mb-4">Kontakt</h2>
                   <p className="mb-6">
-                    E-Mail: <a href="mailto:sergej@lebensthema.coach" className="text-brand-cyan hover:underline">sergej@lebensthema.coach</a>
+                    E-Mail: <a href="mailto:sergej@lebensthema.coach" className="text-brand-primary hover:underline">sergej@lebensthema.coach</a>
                   </p>
                 </section>
 
@@ -55,7 +55,7 @@ export default function Impressum() {
                 <section>
                   <h2 className="text-xl md:text-2xl font-bold mb-4">Datenschutzerklärung</h2>
                   <p className="mb-6">
-                    Unter dem folgenden Link finden Sie unsere <a href="/datenschutz" className="text-brand-cyan hover:underline">Datenschutzerklärung</a>.
+                    Unter dem folgenden Link finden Sie unsere <a href="/datenschutz" className="text-brand-primary hover:underline">Datenschutzerklärung</a>.
                   </p>
                 </section>
 
@@ -88,7 +88,7 @@ export default function Impressum() {
 
                 <section className="mt-8 pt-6 border-t border-gray-200">
                   <p className="text-sm text-gray-500">
-                    Impressum von <a href="https://impressum-generator.de" target="_blank" rel="dofollow" className="text-brand-cyan hover:underline">Impressum-Generator.de</a>. Powered by <a href="https://www.kanzlei-hasselbach.de/" target="_blank" rel="nofollow" className="text-brand-cyan hover:underline">Franziska Hasselbach, Bonn</a>.
+                    Impressum von <a href="https://impressum-generator.de" target="_blank" rel="dofollow" className="text-brand-primary hover:underline">Impressum-Generator.de</a>. Powered by <a href="https://www.kanzlei-hasselbach.de/" target="_blank" rel="nofollow" className="text-brand-primary hover:underline">Franziska Hasselbach, Bonn</a>.
                   </p>
                 </section>
               </div>

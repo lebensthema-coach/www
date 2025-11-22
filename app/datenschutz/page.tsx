@@ -10,7 +10,7 @@ export default function Datenschutz() {
         <section className="w-full max-w-7xl mx-auto px-4 pt-4 pb-2">
           <WhiteContainer>
             <div className="px-6 md:px-10 py-8 md:py-12 space-y-6 text-brand-dark-gray">
-              <h1 className="text-brand-orange text-3xl md:text-4xl font-bold mb-6">
+              <h1 className="text-brand-primary text-3xl md:text-4xl font-bold mb-6">
                 Datenschutzerklärung
               </h1>
               <h2 id="m716">Präambel</h2>

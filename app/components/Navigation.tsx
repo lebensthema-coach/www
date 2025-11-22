@@ -16,8 +16,8 @@ export default function Navigation() {
             href="/" 
             className={`font-bold text-base transition-opacity ${
               isHome 
-                ? 'text-brand-cyan hover:opacity-80' 
-                : 'text-brand-dark-gray hover:text-brand-cyan'
+                ? 'text-brand-primary hover:opacity-80' 
+                : 'text-brand-dark-gray hover:text-brand-primary'
             }`}
           >
             Home
@@ -26,7 +26,7 @@ export default function Navigation() {
             href="https://calendly.com/lebensthema/coach" 
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
+            className="text-brand-dark-gray font-bold text-base hover:text-brand-primary transition-colors"
           >
             Coaching
           </a>
@@ -34,8 +34,8 @@ export default function Navigation() {
             href="/newsletter" 
             className={`font-bold text-base transition-opacity ${
               isNewsletter 
-                ? 'text-brand-cyan hover:opacity-80' 
-                : 'text-brand-dark-gray hover:text-brand-cyan'
+                ? 'text-brand-primary hover:opacity-80' 
+                : 'text-brand-dark-gray hover:text-brand-primary'
             }`}
           >
             Newsletter
@@ -44,7 +44,7 @@ export default function Navigation() {
             href="https://creators.spotify.com/pod/profile/sergej-tissen2/" 
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-dark-gray font-bold text-base hover:text-brand-cyan transition-colors"
+            className="text-brand-dark-gray font-bold text-base hover:text-brand-primary transition-colors"
           >
             Podcast
           </a>

@@ -22,8 +22,8 @@ export default function Button({
   const baseClasses = 'inline-block px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:opacity-90 transition-opacity shadow-md';
   
   const variantClasses = {
-    primary: 'bg-brand-cyan text-white',
-    secondary: 'bg-brand-orange text-white',
+    primary: 'bg-brand-primary text-white',
+    secondary: 'bg-brand-primary text-white',
   };
 
   const classes = `${baseClasses} ${variantClasses[variant]} ${className}`;
